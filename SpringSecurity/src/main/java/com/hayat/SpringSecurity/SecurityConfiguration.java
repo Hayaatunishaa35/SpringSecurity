@@ -2,7 +2,6 @@ package com.hayat.SpringSecurity;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -16,26 +15,40 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http.authorizeHttpRequests(
-                auth -> auth.anyRequest().authenticated()
-        ).httpBasic(Customizer.withDefaults());
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
+
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> {})
+                .httpBasic(basic -> {});
+
 
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder){
+        UserDetails admin = User.builder()
+                .username("Admin")
+                .password(encoder.encode("admin@123"))
+                .roles("ADMIN")
+                .build();
+
         UserDetails user = User.builder()
-                .username("abc")
-                .password(encoder.encode("abc"))
+                .username("User")
+                .password(encoder.encode("User@098"))
                 .roles("USER")
                 .build();
 
-        return new InMemoryUserDetailsManager(user);
+        return new InMemoryUserDetailsManager(admin,user);
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder(){

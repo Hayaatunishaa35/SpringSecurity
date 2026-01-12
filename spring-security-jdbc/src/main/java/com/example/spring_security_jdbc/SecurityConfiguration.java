@@ -28,30 +28,48 @@ public class SecurityConfiguration {
         return http.build();
     }
 
+//    HardCoded users
+//    @Bean
+//    public UserDetailsService userDetailsService(PasswordEncoder encoder, DataSource dataSource){
+//        JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+//
+//        if(!manager.userExists("user")){
+//            manager.createUser(
+//                    User.withUsername("user")
+//                            .password(encoder.encode("pass"))
+//                            .roles("USER")
+//                            .build()
+//            );
+//        }
+//
+//        if(!manager.userExists("admin")){
+//            manager.createUser(
+//                    User.withUsername("admin")
+//                            .password(encoder.encode("pass"))
+//                            .roles("ADMIN")
+//                            .build()
+//            );
+//        }
+//
+//        return manager;
+//    }
+
+//    Users from database with default schema
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder, DataSource dataSource){
-        JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-
-        if(!manager.userExists("user")){
-            manager.createUser(
-                    User.withUsername("user")
-                            .password(encoder.encode("pass"))
-                            .roles("USER")
-                            .build()
-            );
-        }
-
-        if(!manager.userExists("admin")){
-            manager.createUser(
-                    User.withUsername("admin")
-                            .password(encoder.encode("pass"))
-                            .roles("ADMIN")
-                            .build()
-            );
-        }
-
-        return manager;
+    public UserDetailsService userDetailsService(DataSource dataSource) {
+        return new JdbcUserDetailsManager(dataSource);
     }
+
+//  For customised schema here's how to fetch the required details
+//    @Bean
+//    public UserDetailsService userDetailsService(DataSource dataSource) {
+//        JdbcUserDetailsManager manager =  new JdbcUserDetailsManager(dataSource);
+//
+//        manager.setUsersByUsernameQuery("select username, password, enabled from users where username=?");
+//        manager.setAuthoritiesByUsernameQuery("select username, authority from authorities where username=?");
+//        return manager;
+//    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){
